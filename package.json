@@ -13,7 +13,6 @@
     "build:client": "webpack --mode production --config webpack.client.js",
     "build:server": "netlify-lambda build src/lambda -c webpack.server.js"
   },
-  "author": "apotox @saphidev",
   "license": "MIT",
   "devDependencies": {
     "babel-loader": "^8.0.6",

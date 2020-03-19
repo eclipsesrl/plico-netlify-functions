@@ -9,7 +9,6 @@ const externals = ['firebase-admin'];
 const genPackage = () => ({
   name: 'functions',
   private: true,
-  main: 'hello.js',
   license: 'MIT',
   dependencies: externals.reduce(
     (acc, name) =>
@@ -27,7 +26,7 @@ module.exports = {
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
-        exclude: /node_modules/
+        exclude: [/node_modules/, /app/]
       }
     ]
   },

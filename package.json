@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "concurrently 'yarn start:client' 'yarn start:server'",
     "start:client": "webpack-dev-server --mode development --hot --config webpack.client.js",
-    "start:server": "netlify-lambda serve src/lambda -c webpack.server.js",
+    "start:server": "set NODE_ENV=development && set DEV=true && netlify-lambda serve src/lambda -c webpack.server.js",
     "build": "yarn build:client && yarn build:server && cd dist/server/ && yarn install",
     "build:client": "webpack --mode production --config webpack.client.js",
     "build:server": "netlify-lambda build src/lambda -c webpack.server.js"
@@ -27,9 +27,9 @@
     "node-fetch": "^2.6.0",
     "ts-loader": "^6.2.1",
     "typescript": "^3.8.3",
-    "webpack": "^4.42.0",
+    "webpack": "4.41.5",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "3.10.2"
   },
   "dependencies": {
     "class-transformer": "^0.2.3",
@@ -40,6 +40,7 @@
     "generate-json-webpack-plugin": "^0.3.1",
     "lodash": "^4.17.15",
     "reflect-metadata": "^0.1.13",
+    "sales-tax": "^2.0.10",
     "uuidv4": "^6.0.6"
   }
 }

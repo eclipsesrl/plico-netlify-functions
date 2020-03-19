@@ -2,3 +2,4 @@ node_modules
 dist
 /lambda
 .env
+plico-dev.json

@@ -118,6 +118,10 @@ export default class StripeHandler {
     }
   }
 
+  getTaxRate(taxState: SaleState) {
+      return "txr_1GOmENKUqUh9dmwo2Xa3ZgCb"; // TODO: END GET TAX RATE
+  }
+
   async createSubscription(
     customerId: string,
     plan: string,
@@ -128,10 +132,12 @@ export default class StripeHandler {
       return BadRequestException('INVALID_PLAN_CODE');
     }
     let subscriptionPlan: string = plan + '_plan';
-    let taxRate = 'txr_1GOmENKUqUh9dmwo2Xa3ZgCb';
+    let taxRate = '';
     if (taxState.area == AreaType.WORLDWIDE) {
       subscriptionPlan += '_usd';
       taxRate = null;
+    } else {
+        taxRate = this.getTaxRate(taxState);
     }
     const subData: any = {
       customer: customerId,

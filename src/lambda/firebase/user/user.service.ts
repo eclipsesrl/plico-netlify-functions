@@ -35,4 +35,11 @@ export class UserService {
       return defaultUserData;
     }
   }
+
+  async addStripeCustomerId(customerId: string, uid: string) {
+    const userdataReference = this.database.doc(`users/${uid}`);
+    await userdataReference.update({
+      stripeCustomerId: customerId
+    })
+  }
 }

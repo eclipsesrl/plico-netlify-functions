@@ -9,3 +9,4 @@ export const handler: FunctionHandler = async (event, context) => {
 
   return OkResponse(res);
 };
+

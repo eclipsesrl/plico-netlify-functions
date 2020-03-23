@@ -14,6 +14,7 @@ import { validateAndTransformBack } from '../utils/validate';
 import { getTaxState } from '../ecommerce/taxes';
 import { AreaType, SaleState } from '../ecommerce/interfaces/sale-state';
 import { UserPlan } from '../firebase/user/plan.enum';
+import { UPGRADE_PRICES } from '../config/prices';
 
 const secret =
   process.env.STRIPE_SECRET || 'sk_test_GjVfGheLn0iX1XuaWMAb6lvh00Qp4BmSHy';
@@ -97,7 +98,12 @@ export default class StripeHandler {
       const customerData = this.getCustomerData(createSubData, isRegional);
       if (!user.data.stripeCustomerId) {
         const customer = await this.createCustomer(customerData, user.uid);
-        return await this.createSubscription(customer.id, plan, taxState,user.uid);
+        return await this.createSubscription(
+          customer.id,
+          plan,
+          taxState,
+          user.uid
+        );
       } else {
         if (modifications.length != 0) {
           await this.updateCustomer(
@@ -120,7 +126,7 @@ export default class StripeHandler {
   }
 
   getTaxRate(taxState: SaleState) {
-      return "txr_1GOmENKUqUh9dmwo2Xa3ZgCb"; // TODO: populate get tax rate
+    return 'txr_1GOmENKUqUh9dmwo2Xa3ZgCb'; // TODO: populate get tax rate
   }
 
   async createSubscription(
@@ -139,7 +145,7 @@ export default class StripeHandler {
       subscriptionPlan += '_usd';
       taxRate = null;
     } else {
-        taxRate = this.getTaxRate(taxState);
+      taxRate = this.getTaxRate(taxState);
     }
     const subData: any = {
       customer: customerId,
@@ -151,7 +157,7 @@ export default class StripeHandler {
     }
     subData.metadata = {
       uid: userId
-    }
+    };
     const subscription = await stripe.subscriptions.create(subData);
     return OkResponse(subscription);
   }
@@ -361,7 +367,95 @@ export default class StripeHandler {
     return this.mapCustomerData(customer);
   }
 
-  async
+  async handleUpgradeSubscription(
+    request: FunctionEvent
+  ): Promise<FunctionEventResponse> {
+    if (request.httpMethod !== 'GET') {
+      return BadRequestException('INVALID_HTTP_METHOD_USED');
+    }
+
+    const is = await this.auth.isAuthenticated(request, true);
+
+    if (!is) {
+      return UnauthorizedException('NOT_LOGGED_IN');
+    }
+    const user = request.user as User;
+    if (user.data.plan !== UserPlan.LITE) {
+      return UnauthorizedException('ONLY_LITE_CAN_UPGRADE');
+    }
+    const customerId = user.data.stripeCustomerId;
+    if (!customerId) {
+      return UnauthorizedException('ONLY_CUSTOMERS_CAN_UPGRADE');
+    }
+
+    try {
+      const body = JSON.parse(request.body);
+
+      const modifications = body.modified ? body.modified : [];
+      delete body.modified;
+      if (!Array.isArray(modifications)) {
+        return BadRequestException('INVALID_PARAM_MODIFIED');
+      }
+
+      const createSubData = await validateAndTransformBack<CreateCustomerDTO>(
+        CreateCustomerDTO,
+        {
+          ...body,
+          email: user.email
+        }
+      );
+
+      const taxState = await getTaxState(
+        createSubData.address.country,
+        createSubData.address.state,
+        createSubData.tax_id
+      );
+      const isRegional = taxState.area !== AreaType.WORLDWIDE;
+      const customerData = this.getCustomerData(createSubData, isRegional);
+      if (modifications.length != 0) {
+        await this.updateCustomer(
+          customerData,
+          user.data.stripeCustomerId,
+          modifications
+        );
+      }
+
+      const sub = await stripe.subscriptions.list({
+        limit: 1,
+        status: 'active',
+        customer: customerId
+      });
+      const subscription = sub.data[0];
+      if (!subscription) {
+        return UnauthorizedException(
+          'ONLY_CUSTOMERS_WITH_REAL_SUBSCRIPTION_CAN_UPGRADE'
+        );
+      }
+      const plan_id = isRegional ? 'pro_plan' : 'pro_plan_usd';
+      const amount = isRegional
+        ? (1.0 + taxState.rate) * UPGRADE_PRICES.eur
+        : UPGRADE_PRICES.usd;
+      const currency = isRegional ? 'eur' : 'usd';
+
+      const result = await stripe.paymentIntents.create({
+        amount,
+        currency,
+        metadata: {
+          upgrade: 'true',
+          subscription: subscription.id,
+          plan_id
+        }
+      });
+
+      return OkResponse({
+        client_secret: result.client_secret
+      });
+    } catch (e) {
+      return UnauthorizedException(
+        'ONLY_CUSTOMERS_WITH_REAL_SUBSCRIPTION_CAN_UPGRADE'
+      );
+    }
+  }
 
   async handleGetSubscriptions(
     request: FunctionEvent

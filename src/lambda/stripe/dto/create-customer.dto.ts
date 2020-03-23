@@ -6,7 +6,7 @@ import {
   IsEmail,
   IsOptional,
   IsISO31661Alpha2,
-  IsIn
+
 } from 'class-validator';
 import { Type } from 'class-transformer';
 

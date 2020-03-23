@@ -27,15 +27,24 @@ export async function getTaxState(
 }
 
 export async function getAmountWithTaxState(
-  amount: number,
+  amount: number | {regional: number, worldwide: number},
   country: string,
   state?: string,
   taxNumber?: string
 ): Promise<SaleStateWithTotal> {
   const taxState = await getTaxState(country, state, taxNumber);
-
-  return {
-    ...taxState,
-    total: (1.0 + taxState.rate) * amount
-  };
+  if (typeof amount == "number") {
+    return {
+      ...taxState,
+      total: (1.0 + taxState.rate) * amount
+    };
+  } else {
+    const isRegional = taxState.area !== AreaType.WORLDWIDE;
+    const subtotal = isRegional ? amount.regional : amount.worldwide;
+    return {
+      ...taxState,
+      total: (1.0 + taxState.rate) * subtotal
+    };
+  }
+  
 }

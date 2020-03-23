@@ -1,4 +1,5 @@
 import { FunctionHandler } from './utils/function-handler';
+import 'reflect-metadata';
 import { initFirebase } from './firebase';
 import StripeHandler from './stripe/stripe.handler';
 
@@ -14,10 +15,7 @@ if (!stripeHandler) {
 }
 
 export const handler: FunctionHandler = async (event, context) => {
-  if (event.httpMethod == 'GET') {
-    return stripeHandler.handleGetCustomer(event);
-  }
   if (event.httpMethod == 'POST') {
-    return stripeHandler.handleCreateUpdateCustomer(event);
+    return stripeHandler.handleUpgradeSubscription(event);
   }
 };

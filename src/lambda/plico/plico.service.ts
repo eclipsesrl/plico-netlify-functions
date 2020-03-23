@@ -255,12 +255,10 @@ export class PlicoService {
   ): Promise<PendingInvite> {
     const invite = await this.database.collection('invites').add({
       ...client,
-      id: plico.id
+      id: plico.id,
+      title: plico.title
     });
-    // TODO: Send email
-    console.warn(
-      `Should send email to invite ${client.email} to ${plico.title} with code ${invite.id}`
-    );
+
     return {
       id: invite.id,
       ...client
@@ -365,48 +363,33 @@ export class PlicoService {
 
   public async getFilesUploadLinks(plico: Plico, files: string[]) {
     const bucket = admin.storage().bucket();
-    const result = [];
-    const updateObject = plico.files || [];
-    const date = Date.now() + 5 * 60000; // 5 Minutes
-    //const file = bucket.file(plico.id + '/' + fileName);
-    //await file.save(buffer);
-    for (let fileName of files) {
+   
+    const date = Date.now() + 60 * 60000; // 1 Hour
+    
+    const result = await Promise.all(files.map(async fileName => {
       const file = bucket.file(plico.id + '/' + fileName);
-      const found = updateObject.findIndex(file => file.name == fileName);
-      if (found !== -1) {
-        updateObject[found].lastModified = Date.now();
-      } else {
-        updateObject.push({
-          name: fileName,
-          lastModified: Date.now()
-        });
-      }
       try {
         const res = await file.getSignedUrl({ expires: date, action: 'write' });
-        result.push({
+        return {
           id: fileName,
           url: res
-        });
+        };
       } catch (e) {
         console.error(e);
-        result.push({
+       return {
           id: fileName,
           url: ''
-        });
+        };
       }
-    }
-
-    await this.database.doc(`plicos/${plico.id}`).update({
-      files: updateObject
-    });
-
+    }));
+   
     return OkResponse(result);
   }
 
   public async getFilesReadLinks(plico: Plico, files: string[]) {
     const bucket = admin.storage().bucket();
     const result = [];
-    const date = Date.now() + 5 * 60000; // 5 Minutes
+    const date = Date.now() + 60 * 60000; // 1 Hour
     for (let fileName of files) {
       const file = bucket.file(plico.id + '/' + fileName);
       const [exists] = await file.exists();

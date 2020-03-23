@@ -233,7 +233,6 @@ export default class PlicoHandler {
     }
     try {
       const can = await canUploadFileGuard(this.plicoService, request, id);
-      console.log(can);
       if (!can) {
         return UnauthorizedException('CANT_UPLOAD_FILES');
       }

@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin';
 import { User } from './user.model';
 import { UserData, defaultUserData } from './userdata.model';
 import { UnauthorizedException } from '../../utils/exceptions';
+import { UserPlan } from './plan.enum';
 
 export class UserService {
   private database: FirebaseFirestore.Firestore;
@@ -41,5 +42,17 @@ export class UserService {
     await userdataReference.update({
       stripeCustomerId: customerId
     })
+  }
+
+  async updateCustomerPlan(customerId: string, plan: UserPlan) {
+   const res = await this.database.collection('users').where('stripeCustomerId', '==', customerId).get();
+   if (res.empty) {
+     console.error(`User with ${customerId} not found`);
+     return;
+   }
+   const userDoc = res.docs[0];
+   await this.database.doc(`users/${userDoc.id}`).update({
+     plan
+   })
   }
 }

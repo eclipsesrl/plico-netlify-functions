@@ -97,7 +97,7 @@ export default class StripeHandler {
       const customerData = this.getCustomerData(createSubData, isRegional);
       if (!user.data.stripeCustomerId) {
         const customer = await this.createCustomer(customerData, user.uid);
-        return await this.createSubscription(customer.id, plan, taxState);
+        return await this.createSubscription(customer.id, plan, taxState,user.uid);
       } else {
         if (modifications.length != 0) {
           await this.updateCustomer(
@@ -109,7 +109,8 @@ export default class StripeHandler {
         return await this.createSubscription(
           user.data.stripeCustomerId,
           plan,
-          taxState
+          taxState,
+          user.uid
         );
       }
     } catch (e) {
@@ -119,13 +120,14 @@ export default class StripeHandler {
   }
 
   getTaxRate(taxState: SaleState) {
-      return "txr_1GOmENKUqUh9dmwo2Xa3ZgCb"; // TODO: END GET TAX RATE
+      return "txr_1GOmENKUqUh9dmwo2Xa3ZgCb"; // TODO: populate get tax rate
   }
 
   async createSubscription(
     customerId: string,
     plan: string,
-    taxState: SaleState
+    taxState: SaleState,
+    userId: string
   ) {
     plan = plan.toLowerCase();
     if (!['pro', 'lite'].includes(plan)) {
@@ -146,6 +148,9 @@ export default class StripeHandler {
     };
     if (taxRate) {
       subData.default_tax_rates = [taxRate];
+    }
+    subData.metadata = {
+      uid: userId
     }
     const subscription = await stripe.subscriptions.create(subData);
     return OkResponse(subscription);
@@ -355,6 +360,8 @@ export default class StripeHandler {
     await this.userService.addStripeCustomerId(customer.id, uid);
     return this.mapCustomerData(customer);
   }
+
+  async
 
   async handleGetSubscriptions(
     request: FunctionEvent

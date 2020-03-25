@@ -23,11 +23,19 @@ export default class AuthService {
     );
   }
 
-  register(credentials: { email: string; password: string }) {
-    return this.auth.createUserWithEmailAndPassword(
+  async register(credentials: {
+    email: string;
+    password: string;
+    name: string;
+  }) {
+    await this.auth.createUserWithEmailAndPassword(
       credentials.email,
       credentials.password
     );
+    const user = this.auth.currentUser;
+    await user?.updateProfile({
+      displayName: credentials.name
+    });
   }
   async logout() {
     await this.auth.signOut();

@@ -15,5 +15,8 @@ export const mutations: MutationTree<AuthState> = {
   },
   error(state, payload) {
       state.error = payload;
+  },
+  removeError(state) {
+    state.error = undefined;
   }
 };

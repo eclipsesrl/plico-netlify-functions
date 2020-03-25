@@ -1,11 +1,108 @@
 :root {
   --primary-color: #2d5aed;
+  --primary-dark-color: #1a3db1;
 
-  --primary-text-color: #000000;
+  --primary-text-color: #3c3c3b;
   --secondary-text-color: #212121;
+
+
 
   --primary-background-color: #ffffff;
   --secondary-background-color: #f5f5f5;
 
   --primary-border-color: #e6e6e6;
+
+  --error-color: #eb3c5c;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  padding: 0;
+  font-family: Biryani, sans-serif;
+  color: var(--primary-text-color);
+}
+
+* {
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: Cabing, sans-serif;
+}
+
+input {
+  min-height: 50px;
+  border: 1px solid #ececec;
+  -webkit-transition: background-color 400ms ease-in-out;
+  transition: background-color 400ms ease-in-out;
+  font-size: 16px;
+  font-weight: 200;
+  padding: 8px 12px;
+  width: 100%;
+}
+
+form > div, fieldset > div {
+  margin-bottom: 10px;
+}
+input:focus {
+  border-style: solid;
+  border-color: var(--primary-color);
+  background-color: #fafafa;
+  color: var(--primary-text-color);
+  outline: none;
+}
+input.touched.invalid, input.validated.invalid {
+  border-color: var(--error-color);
+}
+
+input[type='submit'] {
+  background-color: var(--primary-color);
+  color: white;
+  transition: transform 200ms ease-in-out, background-color 300ms ease-in-out,
+    -webkit-transform 200ms ease-in-out;
+  font-weight: 400;
+  font-family: Cabin, sans-serif;
+  cursor: pointer;
+  backface-visibility: hidden;
+}
+
+input[type='submit']:hover {
+  background-color: var(--primary-dark-color);
+  transform: translate(0px, -1px);
+}
+
+a {
+  text-decoration: none;
+  color: var(--primary-color);
+  font-family: Cabin, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+a:hover {
+  color: var(--primary-dark-color);
+}
+
+fieldset {
+  border: none;
+  margin: 0;
+  padding: 0;
+}
+
+fieldset[disabled] {
+  opacity: 0.7;
+}
+
+input[type="submit"]:disabled {
+  cursor: not-allowed;
 }

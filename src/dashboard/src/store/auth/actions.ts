@@ -30,21 +30,45 @@ export const actions: ActionTree<AuthState, RootState> = {
 
     dispatch('app/init', null, { root: true });
   },
-  async login({ commit, dispatch, state }, payload) {
-    commit('error', undefined);
+  async login(
+    { commit, dispatch, state },
+    payload: { email: string; password: string; el: HTMLElement }
+  ) {
+    commit('removeError');
     try {
       await state.authService?.login(payload);
+      payload.el.dispatchEvent(
+        new CustomEvent('completed', { detail: { success: true } })
+      );
       dispatch('router/changeRoute', { name: RouteName.HOME }, { root: true });
     } catch (e) {
-      commit('error', e.message);
+      payload.el.dispatchEvent(
+        new CustomEvent('completed', { detail: { success: false } })
+      );
+      dispatch('temporaryError', { message: 'Invalid Credentials' });
     }
   },
-  async register({ commit, state }, payload) {
-    commit('error', undefined);
+  temporaryError({ commit }, payload: { message: string; time?: number }) {
+    commit('error', payload.message);
+    setTimeout(() => {
+      commit('removeError');
+    }, payload.time || 3000);
+  },
+  async register(
+    { commit, dispatch, state },
+    payload: { name: string; email: string; password: string; el: HTMLElement }
+  ) {
+    commit('removeError');
     try {
       await state.authService?.register(payload);
+      payload.el.dispatchEvent(
+        new CustomEvent('completed', { detail: { success: true } })
+      );
     } catch (e) {
-      commit('error', e.message);
+      payload.el.dispatchEvent(
+        new CustomEvent('completed', { detail: { success: false } })
+      );
+      dispatch('temporaryError', { message: e.message });
     }
   },
   async logout({ dispatch, state }) {

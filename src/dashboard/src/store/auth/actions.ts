@@ -71,7 +71,39 @@ export const actions: ActionTree<AuthState, RootState> = {
       dispatch('temporaryError', { message: e.message });
     }
   },
-  async logout({ dispatch, state }) {
+  async logout({ state }) {
     await state.authService?.logout();
-  }
+  },
+  async requestPasswordChange(
+    { commit, dispatch, state },
+    payload: { email: string; el: HTMLElement }
+  ) {
+    commit('removeError');
+    try {
+      await state.authService?.requestPasswordChange(payload.email);
+      payload.el.dispatchEvent(
+        new CustomEvent('completed', { detail: { success: true } })
+      );
+    } catch (e) {
+      payload.el.dispatchEvent(
+        new CustomEvent('completed', { detail: { success: false } })
+      );
+      dispatch('temporaryError', { message: e.message });
+    }
+  },
+  async confirmPasswordChange({ commit, dispatch, state },
+    payload: { password: string; code: string, el: HTMLElement }) {
+      commit('removeError');
+      try {
+        await state.authService?.confirmPasswordChange(payload.password, payload.code);
+        payload.el.dispatchEvent(
+          new CustomEvent('completed', { detail: { success: true } })
+        );
+      } catch (e) {
+        payload.el.dispatchEvent(
+          new CustomEvent('completed', { detail: { success: false } })
+        );
+        dispatch('temporaryError', { message: e.message });
+      }
+    }
 };

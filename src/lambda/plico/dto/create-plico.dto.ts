@@ -4,7 +4,9 @@ import {
   MinLength,
   ValidateNested,
   IsArray,
-  IsObject
+  IsObject,
+  IsUrl,
+  IsOptional
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { PlicoSection } from '../models/plico-section.model';
@@ -14,6 +16,10 @@ export class CreatePlicoDTO {
   @IsNotEmpty()
   @MinLength(3)
   title: string;
+
+  @IsUrl()
+  @IsOptional()
+  image: string;
 
   @IsArray()
   @IsObject({ each: true })

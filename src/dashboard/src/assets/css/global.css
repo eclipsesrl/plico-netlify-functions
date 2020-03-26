@@ -5,14 +5,14 @@
   --primary-text-color: #3c3c3b;
   --secondary-text-color: #212121;
 
-
-
   --primary-background-color: #ffffff;
   --secondary-background-color: #f5f5f5;
 
   --primary-border-color: #e6e6e6;
 
   --error-color: #eb3c5c;
+
+  --success-color: #2ad283;
 }
 
 body {
@@ -50,7 +50,8 @@ input {
   width: 100%;
 }
 
-form > div, fieldset > div {
+form > div,
+fieldset > div {
   margin-bottom: 10px;
 }
 input:focus {
@@ -60,7 +61,8 @@ input:focus {
   color: var(--primary-text-color);
   outline: none;
 }
-input.touched.invalid, input.validated.invalid {
+input.touched.invalid,
+input.validated.invalid {
   border-color: var(--error-color);
 }
 
@@ -103,6 +105,46 @@ fieldset[disabled] {
   opacity: 0.7;
 }
 
-input[type="submit"]:disabled {
+input[type='submit']:disabled {
   cursor: not-allowed;
+}
+
+.plico-auth__subtitle {
+  color: var(--secondary-text-color);
+  margin: 20px 0;
+  font-size: 24px;
+  line-height: 1.4;
+  font-weight: 200;
+}
+
+.plico-error {
+  background-color: var(--error-color);
+  color: white;
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 12px;
+}
+
+.plico-auth__actions,
+.plico-auth__actions * {
+  font-size: 16px;
+  line-height: 1.5;
+}
+.plico-auth__actions {
+  margin-top: 60px;
+}
+
+span.input-helper {
+  font-size: 11px;
+  color: var(--error-color);
+}
+
+.plico-success {
+  background-color: var(--success-color);
+  color: white;
+  text-align: center;
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 12px;
 }

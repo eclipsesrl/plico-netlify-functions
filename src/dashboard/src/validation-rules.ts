@@ -23,3 +23,12 @@ extend('min', {
     params: ['length'],
     message: 'The field must have at least {length} characters'
 })
+
+extend('confirm', {
+  params: ['target'],
+  //@ts-ignore
+  validate(value, { target }) {
+    return value === target;
+  },
+  message: 'Password confirmation does not match'
+});

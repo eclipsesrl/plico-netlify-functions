@@ -1,11 +1,11 @@
 <template>
   <AuthLayout>
     <logo />
-    <p class="plico-auth__subtitle">Nice to have you here :)</p>
-    <ValidationObserver v-slot="{ handleSubmit }">
+    <p class="plico-auth__subtitle">Lost your password?</p>
+    <ValidationObserver v-slot="{ handleSubmit }" v-if="!success">
       <form
         class="plico-form"
-        @submit.prevent="handleSubmit(login)"
+        @submit.prevent="handleSubmit(requestPasswordChange)"
         ref="form"
         v-on:completed="onCompleted($event)"
       >
@@ -24,34 +24,13 @@
             />
             <span class="input-helper">{{ errors[0] }}</span>
           </ValidationProvider>
-          <ValidationProvider
-            v-slot="{ errors, classes }"
-            :rules="{
-              required: true
-            }"
-            tag="div"
-          >
-            <input
-              type="password"
-              :class="classes"
-              v-model="password"
-              autocomplete="current-password"
-              placeholder="Password"
-            />
-            <span class="input-helper">{{ errors[0] }}</span>
-          </ValidationProvider>
           <input type="submit" :value="submit" :disabled="disabled" />
         </fieldset>
       </form>
     </ValidationObserver>
     <div v-if="error" class="plico-error">{{ error }}</div>
-    <div style="margin-top: 10px">
-      <router-link to="/forgot-password">Forgot Password?</router-link>
-    </div>
-
-    <div class="plico-auth__actions">
-      Need a Plico account?
-      <router-link to="/register">Create an account.</router-link>
+    <div v-if="success" class="plico-success">
+      Check your email to reset your password!
     </div>
   </AuthLayout>
 </template>
@@ -59,22 +38,28 @@
 <script lang="ts">
 import { mapGetters } from 'vuex';
 export default {
-  name: 'Login',
+  name: 'ForgotPassword',
   data() {
-    return { email: '', password: '', disabled: false, submit: 'Login' };
+    return {
+      email: '',
+      disabled: false,
+      submit: 'Request a Password Change',
+      success: false
+    };
   },
   computed: mapGetters('auth', ['error']),
   methods: {
     onCompleted(e: CustomEventInit) {
       this.disabled = false;
-      this.submit = 'Login';
+      this.submit = 'Request a Password Change';
+      this.success = e.detail.success;
     },
-    login() {
+    requestPasswordChange() {
+      this.success = false;
       this.disabled = true;
       this.submit = 'Please wait...';
-      this.$store.dispatch('auth/login', {
+      this.$store.dispatch('auth/requestPasswordChange', {
         email: this.email,
-        password: this.password,
         el: this.$refs.form
       });
     }

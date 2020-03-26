@@ -37,7 +37,16 @@ export default class AuthService {
       displayName: credentials.name
     });
   }
+
   async logout() {
     await this.auth.signOut();
+  }
+
+  async requestPasswordChange(email: string) {
+    return this.auth.sendPasswordResetEmail(email);
+  }
+
+  async confirmPasswordChange(password: string, code: string) {
+    return this.auth.confirmPasswordReset(code, password);
   }
 }

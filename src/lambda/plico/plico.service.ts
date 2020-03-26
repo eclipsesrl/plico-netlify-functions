@@ -161,6 +161,20 @@ export class PlicoService {
       for (let collaborator of plico.collaborators) {
         await this.removePlicoId(collaborator, plicoId, 'other');
       }
+
+      try {
+        const bucket = admin.storage().bucket();
+        const extensions = ['.svg', '.png'];
+        extensions.forEach( async extension => {
+         const path = `public/${plicoId}${extension}`;
+         if (await bucket.file(path).exists()) {
+           await bucket.file(path).delete()
+         }
+        })
+      } catch(e) {
+        // ignore errors
+      }
+      
       return OkResponse('DELETED');
     } catch (error) {
       console.error(error);
